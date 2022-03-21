@@ -23,4 +23,9 @@ This R Bookdown website is my final project for the Introduction to Data Science
 knitr::write_bib(c(
   .packages(), 'bookdown', 'knitr', 'rmarkdown'
 ), 'packages.bib')
+
+
+## clean bookdown  cache if needed
+# bookdown::clean_book(TRUE)
+# https://bookdown.org/yihui/bookdown/build-the-book.html
 ```

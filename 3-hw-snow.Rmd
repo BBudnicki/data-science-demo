@@ -1,0 +1,441 @@
+# Simple web scraping
+
+R can read html using either rvest, xml, or xml2 packages. Here we are going to navigate to the Center for Snow and Avalanche Studies  [Website](https://snowstudies.org/archived-data/) and read a table in. This table contains links to data we want to programmatically download for three sites. We don't know much about these sites, but they contain incredibly rich snow, temperature, and precipitation data. 
+
+
+```{r setup, include=FALSE}
+library(rvest)
+library(tidyverse)
+library(lubridate)
+library(readxl)
+library(pdftools)
+library(weathermetrics)
+
+
+```
+
+
+
+
+## Reading an html 
+
+### Extract CSV links from webpage
+
+```{r}
+site_url <- 'https://snowstudies.org/archived-data/'
+
+#Read the web url
+webpage <- read_html(site_url)
+#See if we can extract tables and get the data that way
+tables <- webpage %>%
+  html_nodes('table') %>%
+  magrittr::extract2(3) %>%
+  html_table(fill = TRUE)
+#That didn't work, so let's try a different approach
+
+#Extract only weblinks and then the URLs!
+links <- webpage %>%
+  html_nodes('a') %>%
+  .[grepl('24hr',.)] %>%
+  html_attr('href')
+
+```
+
+## Data Download
+
+### Download data in a for loop
+
+```{r}
+
+#Grab only the name of the file by splitting out on forward slashes
+splits <- str_split_fixed(links,'/',8)
+
+#Keep only the 8th column
+dataset <- splits[,8] 
+
+#generate a file list for where the data goes
+datapath = 'data/snow/'
+dir.create(datapath)
+file_names <- paste0(datapath,dataset)
+
+for(i in 1:3){
+  download.file(links[i],destfile=file_names[i])
+}
+
+downloaded <- file.exists(file_names)
+
+evaluate <- !all(downloaded)
+
+```
+
+
+### Download data in a map
+
+```{r}
+
+#Map version of the same for loop (downloading 3 files)
+if(evaluate == T){
+  map2(links[1:3],file_names[1:3],download.file)
+}else{print('data already downloaded')}
+
+```
+
+## Data read-in 
+
+### Read in just the snow data as a loop
+
+```{r}
+#Pattern matching to only keep certain files
+snow_files <- file_names %>%
+  .[!grepl('SG_24',.)] %>%
+  .[!grepl('PTSP',.)]
+
+#empty_data <- list()
+
+# snow_data <- for(i in 1:length(snow_files)){
+#   empty_data[[i]] <- read_csv(snow_files[i]) %>%
+#     select(Year,DOY,Sno_Height_M)
+# }
+
+#snow_data_full <- do.call('rbind',empty_data)
+
+#summary(snow_data_full)
+```
+
+
+### Read in the data as a map function
+
+```{r}
+
+our_snow_reader <- function(file){
+  name = str_split_fixed(file,'/',2)[,2] %>%
+    gsub('_24hr.csv','',.)
+  df <- read_csv(file) %>%
+    select(Year,DOY,Sno_Height_M) %>%
+    mutate(site = name)
+}
+
+snow_data_full <- map_dfr(snow_files,our_snow_reader)
+
+summary(snow_data_full)
+```
+
+
+### Plot snow data
+
+```{r}
+snow_yearly <- snow_data_full %>%
+  group_by(Year,site) %>%
+  summarize(mean_height = mean(Sno_Height_M,na.rm=T))
+
+ggplot(snow_yearly,aes(x=Year,y=mean_height,color=site)) + 
+  geom_point() +
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_few()
+```
+
+
+# Assignment:
+
+##  1. Extract the meteorological data URLs. 
+
+Here we want you to use the `rvest` package to get the URLs for the `SASP forcing` and `SBSP_forcing` meteorological data sets.
+
+
+```{r}
+
+q1_links <- webpage %>%
+  html_nodes('a') %>%
+  .[grepl('forcing',.)] %>%
+  html_attr('href')
+
+```
+
+##  2. Download the meteorological data. 
+
+Use the `download_file` and `str_split_fixed` commands to download the data and save it in your data folder. You can use a for loop or a map function. 
+
+
+```{r}
+
+q2_splits <- str_split_fixed(q1_links,'/',8)
+
+#Keep only the 8th column
+q2_dataset <- q2_splits[,8] 
+
+
+q2_file_names <- paste0(datapath,q2_dataset)
+
+for(i in 1:2){
+  download.file(q1_links[i],destfile=q2_file_names[i])
+}
+
+q2_downloaded <- file.exists(file_names)
+
+evaluate <- !all(q2_downloaded)
+
+```
+
+##  3. Read data
+
+Write a custom function to read in the data and append a site column to the data. 
+
+```{r}
+
+# this code grabs the variable names from the metadata pdf file
+q3_headers <- pdf_text('https://snowstudies.org/wp-content/uploads/2022/02/Serially-Complete-Metadata-text08.pdf') %>%
+  readr::read_lines(.) %>%
+  trimws(.) %>%
+  str_split_fixed(.,'\\.',2) %>%
+  .[,2] %>%
+  .[1:26] %>%
+  str_trim(side = "left")
+
+
+q3_reader <- function(file){
+  fileName = str_split_fixed(file,'/',2)[,2]
+    nameRight =  str_split_fixed(fileName,'_',2)[,2] 
+    nameLeft =  str_split_fixed(nameRight,'_',2)[,1] 
+    df <- read.delim(file, header = FALSE, sep ="",col.names = q3_headers,skip = 4) %>%
+      mutate(site = nameLeft) %>%
+      mutate(date =  as.Date(paste(year, month, day, sep = "-"))) %>%
+      mutate(air_temp_k = air.temp..K.) %>%
+      mutate(air_temp_c = kelvin.to.celsius(air.temp..K.))
+
+}
+
+
+
+```
+
+
+##  4. Use the `map` function
+
+Read in both meteorological files. Display a summary of your tibble.
+
+```{r}
+
+q4_full <- map_dfr(q2_file_names,q3_reader)
+
+summary(q4_full)
+
+```
+
+##  5. Line Plot
+
+
+Make a line plot of mean temp by year by site (using the `air temp [K]` variable). Is there anything suspicious in the plot? Adjust your filtering if needed.
+
+
+
+```{r}
+q5_yearly <- q4_full %>%
+  group_by(year,site) %>%
+  summarize(mean_temp_k = mean(air_temp_k,na.rm=T), date = as.Date(paste(year, "01", "01", sep = "-")))
+
+
+ggplot(q5_yearly) + 
+  geom_line(mapping = aes(x=date,y=mean_temp_k,color=site)) + 
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_few() +
+  ylab(label = "Air Temperture (Kelvin)") +
+  ggtitle("Fig 1: Mean Air Temperture by Year")
+
+```
+
+
+Figure 1 shows the annual mean air temperature for both sites in a given year. 2003 & 2004 have unusually low air temperatures.  
+
+
+
+```{r}
+q5_daily <- q4_full %>%
+  group_by(date,site)
+
+ggplot(q5_daily) +
+  geom_boxplot(mapping = aes(factor(year), y=air_temp_k,na.rm=T),
+      outlier.colour="black",
+      outlier.shape=16,
+      outlier.size=2, 
+      notch=FALSE) +
+  ylab(label = "Air Temperture (Kelvin)") +
+  ggtitle("Fig 2: Boxplot Air Temperture by year")
+```
+
+
+In figure 2 we see the air temperature in 2004 was only slightly lower, with the interquartile range being roughly the same. On the other hand 2003 had a significantly narrower interquartile range. At the scale of 1 year it is difficult to tell how much the 2003 data is skewed by collecting part of the year, if it was unusually cold that year, or if there was an issue with the instrumentation.
+
+
+```{r}
+q5_yearly <- q4_full %>%
+  group_by(year,month,site) %>%
+  summarize(mean_temp_k = mean(air_temp_k,na.rm=T), date = as.Date(paste(year, month, "01", sep = "-")))
+
+
+ggplot(q5_yearly) + 
+  geom_line(mapping = aes(x=date,y=mean_temp_k,color=site)) + 
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_few() +
+  scale_x_date(limit=c(as.Date("2003-11-01"),as.Date("2007-01-01"))) +
+  ylab(label = "Air Temperture (Kelvin)") +
+  ggtitle("Fig 3: Mean air Temperture by Month", subtitle = "2003 - 2006" )
+
+```
+
+
+In figure 3 we see that it was unusually cold at both sites for the 2003 & 2004 data. Much more for the SBSP. Due to only collecting data for the end of the year, 2003 data has a lower mean temperature as it does not include the summer months. Looking at the header file [Serially-Complete-Metadata-text08.pdf](https://snowstudies.org/wp-content/uploads/2022/02/Serially-Complete-Metadata-text08.pdf) we can see that they do include QC Code columns, but those values do not appear in the data set itself. The table of code values indicate some of the data has the followings errors, but the dates are not specified.
+
+####  Air temp Error Codes
+- 5001: missing data: use data from upper measurement location at same site (regression fill)
+- 5003: missing data: use data from paired site (regression fill)
+- 6000: before desired time period
+- 6001: missing data: use data from upper measurement location at same site (regression fill)
+- 6002: missing data: use data from paired site (regression fill)
+- 6009: missing data: assume RH is 50%.
+
+
+## 6. Line plot 2
+
+Write a function that makes line plots of monthly average temperature at each site for a given year. Use a for loop to make these plots for 2005 to 2010. Are monthly average temperatures at the Senator Beck Study Plot ever warmer than the Snow Angel Study Plot?
+Hint: [https://ggplot2.tidyverse.org/reference/print.ggplot.html](https://ggplot2.tidyverse.org/reference/print.ggplot.html)
+
+
+```{r}
+
+years <- seq(2005,2010)
+
+for (yearly in years) {
+
+  thisYear <- q4_full %>% filter(year == yearly)  %>%
+  group_by(month,site) %>%
+  summarize(mean_temp_k = mean(air_temp_k,na.rm=T))
+
+  print(
+    ggplot(thisYear) +
+    geom_line(aes(x=month,y=mean_temp_k,color=site,group=factor(site))) +
+    ylab(label = "Air Temperture (Kelvin)") +
+    scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+      label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+    ggtitle("Fig 4: Line Chart Air Temperture by Month", subtitle = yearly) 
+
+  )
+  
+}
+```
+
+
+Monthly average temperatures at the Snow Angel Study Plot are consistently warmer than the Senator Beck Study Plot. At no point from 2005 to 2010 was the Snow Angel Study Plot mean monthly temperature lower than the Senator Beck Study Plot.
+
+
+```{r}
+q6_yearly_monthly <- q4_full %>%
+  group_by(year,month,site) %>%
+  summarize(mean_temp_k = mean(air_temp_k,na.rm=T))
+
+
+ggplot(q6_yearly_monthly) + 
+  geom_line(aes(x=month,y=mean_temp_k,color=year,group=factor(year)))+  
+  facet_wrap(~site)+
+  ylab(label = "Air Temperture (Kelvin)") +
+  scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+    label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  ggtitle("Fig 5: Line Chart Air Temperture by Month")
+```
+
+
+```{r}
+q6_monthly <- q4_full %>%
+  group_by(month,site) %>%
+  summarize(mean_temp_k = mean(air_temp_k,na.rm=T))
+
+
+ggplot(q6_monthly) + 
+  geom_line(aes(x=month,y=mean_temp_k,color=site)) + 
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_few() +
+  ylab(label = "Air Temperture (Kelvin)") +
+    scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+    label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  ggtitle("Fig 6: Line Chart Air Temperture by Month", subtitle = "(All Years)")
+
+
+```
+
+
+## 7 Bonus #1 
+
+Make a plot of average daily precipitation by day of year (averaged across all available years). Color each site. 
+
+```{r}
+# Get daily precipitation by sum
+# average the days
+q7_daily <- q4_full %>%
+  group_by(year,month,day,site) %>%
+  summarize(daily_precip = sum(precip..kg.m.2.s.1.), ) %>%
+  group_by(month,day,site) %>%  
+  summarize(mean_precip = mean(daily_precip), date = make_date('1970', month, day))
+
+
+ggplot(q7_daily) + 
+  geom_point(aes(x=date,y=mean_precip,color=site)) + 
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_few() +
+  ylab(label = "Percip") +
+  ggtitle("Fig 7: Average daily percipitation", subtitle = "(All Years)")
+
+```
+
+The number of years is not great enough to handle daily precipitation well. Trying monthly.
+
+```{r}
+
+q7_daily <- q4_full %>%
+  group_by(year,month,day,site) %>%
+  summarize(daily_precip = sum(precip..kg.m.2.s.1.) ) %>%
+  group_by(month,site) %>%  
+  summarize(mean_precip = mean(daily_precip))
+
+
+ggplot(q7_daily) + 
+  geom_line(aes(x=month,y=mean_precip,color=site)) + 
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_few() +
+  ylab(label = "Percip") +
+    scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+    label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  ggtitle("Fig 8: Average daily percipitation in a given month", subtitle = "(All Years)")
+
+```
+
+That was not helpful for finding a pattern. Also note: the daily precipitation is identical at both sites.
+
+## 8. Bonus #2
+
+Use a function and for loop to create yearly plots of precipitation by day of year. Color each site. 
+
+```{r}
+q8_yearly_monthly <- q4_full %>%
+  group_by(year,month,site) %>%
+  summarize(mean_temp_k = mean(precip..kg.m.2.s.1.))
+
+
+ggplot(q8_yearly_monthly) + 
+  geom_line(aes(x=month,y=mean_temp_k,color=year,group=factor(year)))+  
+  facet_wrap(~site)+
+  ylab(label = "Percip") +
+  scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+    label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  ggtitle("Fig 9: Line Chart Precipitation by Month")
+
+
+```
+
+
+# To Git Hub
+
+[https://github.com/BBudnicki/3_snow_functions_iteration](https://github.com/BBudnicki/3_snow_functions_iteration)
+
+```{r}
+lubridate::yday(as.Date("2022-02-01"))
+
+```

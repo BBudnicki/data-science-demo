@@ -1,0 +1,259 @@
+# Hayman Fire
+
+## [Check out Github](https://github.com/BBudnicki/2_fire_data_wrangle)
+
+
+```{r setup, warning=F,message=F}
+library(tidyverse)
+library(tidyr)
+library(ggthemes)
+library(lubridate)
+
+# Now that we have learned how to munge (manipulate) data
+# and plot it, we will work on using these skills in new ways
+
+#knitr::opts_knit$set(root.dir='..')
+
+
+```
+
+
+```{r dataread, warning=F,message=F}
+####-----Reading in Data and Stacking it ----- ####
+#Reading in files
+files <- list.files('./data/hayman',full.names=T)
+if(length(files) == 0){
+  files <- list.files('data',full.names=T)
+}
+
+#Read in individual data files
+ndmi <- read_csv(files[1]) %>% 
+  rename(burned=2,unburned=3) %>%
+  mutate(data='ndmi') 
+
+
+ndsi <- read_csv(files[2]) %>% 
+  rename(burned=2,unburned=3) %>%
+  mutate(data='ndsi')
+
+ndvi <- read_csv(files[3])%>% 
+  rename(burned=2,unburned=3) %>%
+  mutate(data='ndvi')
+
+# Stack as a tidy dataset
+full_long_gather <- rbind(ndvi,ndmi,ndsi) %>%
+  gather(key='site',value='value',-DateTime,-data) %>%
+  filter(!is.na(value))  %>%
+  mutate(month=month(DateTime), year=year(DateTime))
+
+full_long <- rbind(ndvi,ndmi,ndsi) %>%
+  pivot_longer(c(-DateTime,-data), names_to='site',values_to='value') %>%
+  filter(!is.na(value))  %>%
+  mutate(month=month(DateTime), year=year(DateTime))
+  
+full_long <- full_long %>% mutate(site_type = ifelse((site == 'unburned'),'Site 1: unburned',ifelse((year(DateTime) >= 2002), 'Site 2: post burn', 'Site 2: pre burn')))
+
+  
+##View(full_long)
+
+
+```
+## NDVI Plot over Time
+```{r}
+
+ndvi_plot <- full_long %>%
+  filter(data == "ndvi")
+
+ggplot(ndvi_plot,aes(x=DateTime, y=value,color=site_type)) + geom_point() +
+    ggtitle('Figure 1: NDVI over Time')
+
+#View(ndvi_plot)
+
+
+```
+
+
+
+## Question 1
+
+What is the correlation between NDVI and NDMI? - here I want you to
+convert the full_long dataset in to a wide dataset using the 
+function "spread" and then make a plot that shows the correlation s a
+function of if the site was burned or not (x axis should be ndmi)
+You should exclude winter months and focus on summer months
+
+```{r}
+
+full_wide_spread <- spread(full_long, key=data, value=value, fill = NA, convert = FALSE, drop = TRUE, sep = NULL)
+
+full_wide <- full_long %>% pivot_wider(names_from = data, values_from = value)
+
+full_wide_filtered_notwinter <- full_wide  %>%   filter(!month %in% c(11,12,1,2,3,4))
+
+
+#View(full_wide_filtered_notwinter)
+
+ggplot(full_wide_filtered_notwinter,aes(x=ndmi, y=ndvi,color=site_type)) + geom_point()+
+  ggtitle('Figure 2: Impact of surface moisture on vegatitation (NDVI over NDMI)') +
+  scale_x_continuous(name="NDMI (Surface Moisture)") +
+  scale_y_continuous(name="NDVI (Vegitation)")
+
+
+```
+
+### Answer
+As surface moisture increases, vegetation increases. Site 2 saw a decrease in surface moisture and vegetation following the same ratio between NDVI and NDMI.
+
+## Question 2 
+What is the correlation between average NDSI (normalized snow index) for January - April and average NDVI for June-August? In other words, does the previous year's snow cover influence vegetation growth for the following summer?
+ 
+```{r}
+## Setup & filter data
+
+
+## NDSI jan - april  1,2,3,4
+ndsi_year <- full_long %>% 
+  filter(data == "ndsi") %>%
+  filter(month %in% c(1,2,3,4)) %>%
+  group_by(site_type, year) %>%
+  summarize(mean=mean(value), data="ndsi")
+
+## NDVI june - August 6,7,8
+ndvi_year <- full_long %>% 
+  filter(data == "ndvi") %>%
+  filter(month %in% c(6,7,8)) %>%
+  group_by(site_type, year) %>%
+  summarize(mean=mean(value), data="ndvi")
+# Stack as a tidy dataset
+ndsi_ndvi_year <- rbind(ndsi_year,ndvi_year) %>%
+  pivot_wider(names_from = data, values_from = mean)
+
+
+#(site == 'unburned'),'Site 1: unburned',ifelse((year(DateTime) >= 2002), 'Site 2: post burn', 'Site 1: pre burn')
+
+ggplot(ndsi_ndvi_year,aes(x=ndsi, y=ndvi)) + 
+  geom_point(aes( color=site_type)) +
+  ggtitle('Figure 3: Impact of snow cover on vegatative growth (NDVI over NDSI)')+
+  scale_x_continuous(name="NDSI (Snow Cover)") +
+  scale_y_continuous(name="NDVI (Vegitation)")
+
+
+```
+
+### Answer
+The previous year's snow cover has little if any influence on vegetation growth the following summer. Both for the Site 1 & Site 2 pre burn.
+
+## Question 3
+
+How is the snow effect from question 2 different between pre- and post-burn
+and burned and unburned? 
+
+### Answer
+
+There is a clear shift in vegetation due to the impacts of burned areas as seen in **Figure 3** from site 2 pre burn to site 2 post burn. The snow cover had lower maximums during this time. This could be due to darker surfaces but also could be due to outside factors such as warmer winters. Based on the sample size it is difficult to tell from this data. Th
+
+## Question 4
+
+What month is the greenest month on average? 
+
+```{r}
+ndvi_month_avg <- full_long %>% 
+  filter(data == "ndvi") %>%
+  group_by(month) %>%
+  summarize(mean=mean(value), data="ndvi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+ndvi_month <- full_long %>% 
+  filter(data == "ndvi") %>%
+  group_by(site_type, month) %>%
+  summarize(mean=mean(value), data="ndvi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+
+ggplot() + 
+  geom_line(data = ndvi_month_avg, aes( x=month, y=ndvi)) +
+  geom_point(data = ndvi_month, aes(x=month, y=ndvi, color=site_type)) +
+  ggtitle('Figure 4: Vegitation (NDVI) by Month')+
+  scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+  label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  scale_y_continuous(name="Average NDVI")
+```
+
+### Answer
+
+August is the 'greenest' month based on the Normalized Difference Vegetation Index. This holds true for both unburned & burned sites.
+
+## Question 5
+
+What month is the snowiest on average?
+
+```{r}
+ndsi_month_avg <- full_long %>% 
+  filter(data == "ndsi") %>%
+  group_by(month) %>%
+  summarize(mean=mean(value), data="ndsi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+
+ndsi_month <- full_long %>% 
+  filter(data == "ndsi") %>%
+  group_by(site_type, month) %>%
+  summarize(mean=mean(value), data="ndsi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+ggplot() + 
+  geom_line(data = ndsi_month_avg, aes( x=month, y=ndsi)) +
+  geom_point(data = ndsi_month, aes(x=month, y=ndsi, color=site_type)) +
+  ggtitle('Figure 4: Snow (NDSI) by Month')+
+  scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+  label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  scale_y_continuous(name="Average NDSI (snow cover)")
+```
+
+### Answer
+
+Snow cover was greatest in January & February. Site 1 had greater cover than site 2. This can be used as a proxy for snow fall, but is not a direct measurement as the freeze thaw cycle impacts the cover. Interestingly the snow cover post burn at site 2 was less than pre burn. This might be caused by a number of factors related or not related to the burn as theorized in answer 3.
+
+## Question 6 (Bonus): Redo all problems with `spread` and `gather` using modern tidyverse syntax. 
+[Article on topic](https://www.findingyourway.io/blog/2019/09/18/2019-09-18-tidyr-1-0-gather-and-spread-are-dead/)
+
+<input type="checkbox" checked> Complete</input>
+
+### Gather
+df %>% gather("key", "value", x, y, z) 
+is equivalent to 
+df %>% pivot_longer(c(x, y, z), names_to = "key", values_to = "value")
+
+Below is old code, code above has been replaced
+
+```{r}
+
+full_long_gather <- rbind(ndvi,ndmi,ndsi) %>%
+  gather(key='site',value='value',-DateTime,-data) %>%
+  filter(!is.na(value))  %>%
+  mutate(month=month(DateTime), year=year(DateTime))
+```
+
+### Spread
+df %>% spread(key, value)
+is equivalent to 
+df %>% pivot_wider(names_from = key, values_from = value)
+
+Below is old code, code above has been replaced
+
+```{r}
+full_wide_spread <- spread(full_long, key=data, value=value, fill = NA, convert = FALSE, drop = TRUE, sep = NULL)
+
+```
+
+
+## Question 7 (Bonus): Use Climate Engine to pull the same data for the assignment, but updated with 2020/2021 data.
+
+<input type="checkbox"> Error</input>
+
+Google earth enginer threw and error. Seems like there servers are overloaded because it would not let me pull more than 1 year of NDVI data.
+
+![Google Earth Engine Error](../EarthEngineError.png)
+
+
+
