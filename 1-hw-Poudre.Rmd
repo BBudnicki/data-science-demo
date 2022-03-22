@@ -1,4 +1,4 @@
-# Poudre River
+# Poudre River Interactive Graph
 
 The Poudre river goes through northern Colorado through Fort Collins. By graphing the flow rate over time we can spot annual patterns & sever weather events. Discharge data is downloaded by the dataRetrieval R package from the NWIS web service [waterservices.usgs.gov](https://waterservices.usgs.gov/)
 

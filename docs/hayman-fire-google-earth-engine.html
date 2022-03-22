@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Data Science Demo</title>
+  <title>Chapter 2 Hayman Fire Google Earth Engine | Data Science Demo</title>
   <meta name="description" content="This is the final data science project for the Introduction to Data Science Course ESS 580A7." />
   <meta name="generator" content="bookdown 0.25 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Data Science Demo" />
+  <meta property="og:title" content="Chapter 2 Hayman Fire Google Earth Engine | Data Science Demo" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="This is the final data science project for the Introduction to Data Science Course ESS 580A7." />
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Data Science Demo" />
+  <meta name="twitter:title" content="Chapter 2 Hayman Fire Google Earth Engine | Data Science Demo" />
   
   <meta name="twitter:description" content="This is the final data science project for the Introduction to Data Science Course ESS 580A7." />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-
-<link rel="next" href="poudre-river-interactive-graph.html"/>
+<link rel="prev" href="poudre-river-interactive-graph.html"/>
+<link rel="next" href="simple-web-scraping-snow-studies.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -229,23 +229,73 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Data Science Demo</h1>
-<p class="author"><em>Brandon Budnicki</em></p>
-<p class="date"><em>2022-03-22</em></p>
+<div id="hayman-fire-google-earth-engine" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Hayman Fire Google Earth Engine<a href="hayman-fire-google-earth-engine.html#hayman-fire-google-earth-engine" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>The <a href="https://en.wikipedia.org/wiki/Hayman_Fire">Hayman Fire</a> occurred June 8,2002 and was at the time the largest recorded wildfire in Colorado. By using Google Earth Engine to download remote sensing data, we can look at the impact the wildfire had on vegetation.</p>
+<ul>
+<li>Normalized Difference Vegetation Index (<strong><a href="https://www.usgs.gov/landsat-missions/landsat-normalized-difference-vegetation-index">NDVI</a></strong>)</li>
+<li>Normalized Difference Snow Index (<strong><a href="https://www.usgs.gov/landsat-missions/normalized-difference-snow-index">NDSI</a></strong>)</li>
+<li>Normalized Difference Moisture Index (<strong><a href="https://www.usgs.gov/landsat-missions/normalized-difference-moisture-index">NDMI</a></strong>)</li>
+</ul>
+<div id="ndvi-over-time" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> NDVI over time<a href="hayman-fire-google-earth-engine.html#ndvi-over-time" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>There was a clear decrease in NDVI from pre to post burn at Site 2. Site 1 also saw a decrease, albeit quite a bit smaller.</p>
+<div class="figure"><span style="display:block;" id="fig:haymanNDVI"></span>
+<img src="_data-science-demo_files/figure-html/haymanNDVI-1.png" alt="NDVI over time" width="672" />
+<p class="caption">
+Figure 2.1: NDVI over time
+</p>
 </div>
-<div id="introduction" class="section level1 unnumbered hasAnchor">
-<h1>Introduction<a href="index.html#introduction" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>This R Bookdown website is my final project for the Introduction to Data Science Course ESS 580A7. I took this class in the Spring semester of 2022 as part of my candidacy in the Ecosystem Science &amp; Sustainability (<strong>ESS</strong>) PHD program at Colorado State University.</p>
+</div>
+<div id="correlation-between-ndvi-ndmi" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Correlation between NDVI &amp; NDMI<a href="hayman-fire-google-earth-engine.html#correlation-between-ndvi-ndmi" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Exploring the correlation between NDVI &amp; NDMI looking at the summer months we can see that as surface moisture increases, vegetation increases. Site 2 saw a decrease in surface moisture and vegetation following the same ratio between NDVI and NDMI.</p>
+<div class="figure"><span style="display:block;" id="fig:Hayman2"></span>
+<img src="_data-science-demo_files/figure-html/Hayman2-1.png" alt="Impact of surface moisture on vegatitation" width="672" />
+<p class="caption">
+Figure 2.2: Impact of surface moisture on vegatitation
+</p>
+</div>
+</div>
+<div id="snow-and-vegitation" class="section level2 hasAnchor" number="2.3">
+<h2><span class="header-section-number">2.3</span> Snow and Vegitation<a href="hayman-fire-google-earth-engine.html#snow-and-vegitation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Looking at the previous years snow cover, we show little if any influence on vegetation growth the following summer. Both for the Site 1 &amp; Site 2 pre burn. There is a clear shift in vegetation due to the impacts of burned areas <a href="hayman-fire-google-earth-engine.html#fig:HaymanSnowVeg">2.3</a> from site 2 pre burn to site 2 post burn. The snow cover had lower maximums during this time. This could be due to darker surfaces but also could be due to outside factors such as warmer winters. Based on the sample size it is difficult to tell from this data.</p>
+<div class="figure"><span style="display:block;" id="fig:HaymanSnowVeg"></span>
+<img src="_data-science-demo_files/figure-html/HaymanSnowVeg-1.png" alt="Impact of snow cover on vegatative growth" width="672" />
+<p class="caption">
+Figure 2.3: Impact of snow cover on vegatative growth
+</p>
+</div>
+</div>
+<div id="greenest-month" class="section level2 hasAnchor" number="2.4">
+<h2><span class="header-section-number">2.4</span> Greenest Month<a href="hayman-fire-google-earth-engine.html#greenest-month" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>August is the ‘greenest’ month based on the Normalized Difference Vegetation Index. This holds true for both unburned &amp; burned sites.</p>
+<div class="figure"><span style="display:block;" id="fig:haymanGreenest"></span>
+<img src="_data-science-demo_files/figure-html/haymanGreenest-1.png" alt="Vegitation (NDVI) by Month" width="672" />
+<p class="caption">
+Figure 2.4: Vegitation (NDVI) by Month
+</p>
+</div>
+</div>
+<div id="snowiest-month" class="section level2 hasAnchor" number="2.5">
+<h2><span class="header-section-number">2.5</span> Snowiest Month<a href="hayman-fire-google-earth-engine.html#snowiest-month" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Snow cover was greatest in January &amp; February. Site 1 had greater cover than site 2. This can be used as a proxy for snow fall, but is not a direct measurement as the freeze thaw cycle impacts the cover. Interestingly the snow cover post burn at site 2 was less than pre burn. This might be caused by a number of factors related or not related to the burn as theorized in <a href="hayman-fire-google-earth-engine.html#snow-and-vegitation">2.3</a>.</p>
+<div class="figure"><span style="display:block;" id="fig:HaymanSnowiest"></span>
+<img src="_data-science-demo_files/figure-html/HaymanSnowiest-1.png" alt="Average NDSI (snow cover)" width="672" />
+<p class="caption">
+Figure 2.5: Average NDSI (snow cover)
+</p>
+</div>
 
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="poudre-river-interactive-graph.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="poudre-river-interactive-graph.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="simple-web-scraping-snow-studies.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -276,7 +326,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/rstudio/bookdown-demo/edit/master/index.Rmd",
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/2-hw-hayman.Rmd",
 "text": "Edit"
 },
 "history": {
