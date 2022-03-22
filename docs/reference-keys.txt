@@ -19,6 +19,7 @@ fig:PercipitationDay
 fig:PercipitationMonth
 fig:PercipitationYearly
 fig:LagoHist
+view-github
 poudre-river-interactive-graph
 methods
 sitedescription
