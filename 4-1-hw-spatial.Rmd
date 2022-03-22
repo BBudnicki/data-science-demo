@@ -2,7 +2,7 @@
 # LAGOS Spatial Analysis
 
 
-```{r setup, include=FALSE}
+```{r setup-spatial, include=FALSE}
 library(tidyverse) # Tidy packages
 library(sf) #Spatial package that can read and create shapefiles 
 library(mapview) #Interactive maps
@@ -18,7 +18,7 @@ library(USAboundaries) #USA states and counties
 
 ### First download and then specifically grab the locus (or site lat longs)
 
-```{r data-read}
+```{r data-read-spatial}
 # #Lagos download script
 #LAGOSNE::lagosne_get(dest_folder = LAGOSNE:::lagos_path())
 

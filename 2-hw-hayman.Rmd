@@ -1,0 +1,198 @@
+--- 
+title: "Hayman Fire"
+author: "Brandon B"
+date: "`r Sys.Date()`"
+---
+
+# Hayman Fire
+
+The [Hayman Fire](https://en.wikipedia.org/wiki/Hayman_Fire) occurred June 8,2002 and was at the time the largest recorded wildfire in Colorado. By using Google Earth Engine to download remote sensing data, we can look at the impact the wildfire had on vegetation.
+
+- Normalized Difference Vegetation Index (**[NDVI](https://www.usgs.gov/landsat-missions/landsat-normalized-difference-vegetation-index)**)
+- Normalized Difference Snow Index (**[NDSI](https://www.usgs.gov/landsat-missions/normalized-difference-snow-index)**)
+- Normalized Difference Moisture Index  (**[NDMI](https://www.usgs.gov/landsat-missions/normalized-difference-moisture-index)**)
+
+
+
+```{r HaymanSetup, include=FALSE}
+library(tidyverse)
+library(tidyr)
+library(ggthemes)
+library(lubridate)
+
+# Now that we have learned how to munge (manipulate) data
+# and plot it, we will work on using these skills in new ways
+
+#knitr::opts_knit$set(root.dir='..')
+
+
+```
+
+```{r HaymanDataRead, include=FALSE, echo=FALSE, warning = FALSE}
+files <- list.files('./data/hayman',full.names=T)
+
+#Read in individual data files
+ndmi <- read_csv(files[1]) %>% 
+  rename(burned=2,unburned=3) %>%
+  mutate(data='ndmi') 
+ndsi <- read_csv(files[2]) %>% 
+  rename(burned=2,unburned=3) %>%
+  mutate(data='ndsi')
+ndvi <- read_csv(files[3])%>% 
+  rename(burned=2,unburned=3) %>%
+  mutate(data='ndvi')
+
+# Stack as a tidy dataset
+full_long_gather <- rbind(ndvi,ndmi,ndsi) %>%
+  gather(key='site',value='value',-DateTime,-data) %>%
+  filter(!is.na(value))  %>%
+  mutate(month=month(DateTime), year=year(DateTime))
+
+full_long <- rbind(ndvi,ndmi,ndsi) %>%
+  pivot_longer(c(-DateTime,-data), names_to='site',values_to='value') %>%
+  filter(!is.na(value))  %>%
+  mutate(month=month(DateTime), year=year(DateTime))
+  
+full_long <- full_long %>% mutate(site_type = ifelse((site == 'unburned'),'Site 1: unburned',ifelse((year(DateTime) >= 2002), 'Site 2: post burn', 'Site 2: pre burn')))
+  
+##View(full_long)
+
+
+```
+## NDVI over time
+
+There was a clear decrease in NDVI from pre to post burn at Site 2. Site 1 also saw a decrease, albeit quite a bit smaller.
+
+```{r haymanNDVI, fig.cap = "NDVI over time", echo=FALSE, warning = FALSE}
+ndvi_plot <- full_long %>%
+  filter(data == "ndvi")
+ggplot(ndvi_plot,aes(x=DateTime, y=value,color=site_type)) + geom_point() +
+    ggtitle('NDVI over Time') +
+    labs(color="Site Type") 
+
+```
+
+## Correlation between NDVI & NDMI
+
+Exploring the correlation between NDVI & NDMI looking at the summer months we can see that as surface moisture increases, vegetation increases. Site 2 saw a decrease in surface moisture and vegetation following the same ratio between NDVI and NDMI.
+
+
+```{r Hayman2Setup, include=FALSE, echo=FALSE, warning = FALSE}
+
+full_wide_spread <- spread(full_long, key=data, value=value, fill = NA, convert = FALSE, drop = TRUE, sep = NULL)
+full_wide <- full_long %>% pivot_wider(names_from = data, values_from = value)
+full_wide_filtered_notwinter <- full_wide  %>%   filter(!month %in% c(11,12,1,2,3,4))
+
+#View(full_wide_filtered_notwinter)
+```
+
+```{R Hayman2, fig.cap = "Impact of surface moisture on vegatitation", echo=FALSE, warning = FALSE}
+ggplot(full_wide_filtered_notwinter,aes(x=ndmi, y=ndvi,color=site_type)) + geom_point()+
+  ggtitle('Impact of surface moisture on vegatitation (NDVI over NDMI)') +
+  labs(color="Site Type") +
+  scale_x_continuous(name="NDMI (Surface Moisture)") +
+  scale_y_continuous(name="NDVI (Vegitation)")
+
+```
+
+
+## Snow and Vegitation 
+
+Looking at the previous years snow cover, we show little  if any influence on vegetation growth the following summer. Both for the Site 1 & Site 2 pre burn. There is a clear shift in vegetation due to the impacts of burned areas \@ref(fig:HaymanSnowVeg) from site 2 pre burn to site 2 post burn. The snow cover had lower maximums during this time. This could be due to darker surfaces but also could be due to outside factors such as warmer winters. Based on the sample size it is difficult to tell from this data.
+
+ 
+```{r HaymanSnowVeg, fig.cap = "Impact of snow cover on vegatative growth", echo=FALSE, warning = FALSE}
+# Setup & filter data
+
+## NDSI jan - april  1,2,3,4
+ndsi_year <- full_long %>% 
+  filter(data == "ndsi") %>%
+  filter(month %in% c(1,2,3,4)) %>%
+  group_by(site_type, year) %>%
+  summarize(mean=mean(value), data="ndsi")
+
+## NDVI june - August 6,7,8
+ndvi_year <- full_long %>% 
+  filter(data == "ndvi") %>%
+  filter(month %in% c(6,7,8)) %>%
+  group_by(site_type, year) %>%
+  summarize(mean=mean(value), data="ndvi")
+# Stack as a tidy dataset
+ndsi_ndvi_year <- rbind(ndsi_year,ndvi_year) %>%
+  pivot_wider(names_from = data, values_from = mean)
+
+#(site == 'unburned'),'Site 1: unburned',ifelse((year(DateTime) >= 2002), 'Site 2: post burn', 'Site 1: pre burn')
+
+ggplot(ndsi_ndvi_year,aes(x=ndsi, y=ndvi)) + 
+  geom_point(aes( color=site_type)) +
+  ggtitle('Impact of snow cover on vegatative growth (NDVI over NDSI)')+
+  labs(color="Site Type") +
+  scale_x_continuous(name="NDSI (Snow Cover)") +
+  scale_y_continuous(name="NDVI (Vegitation)")
+
+
+```
+
+
+## Greenest Month
+
+August is the 'greenest' month based on the Normalized Difference Vegetation Index. This holds true for both unburned & burned sites.
+
+
+```{r haymanGreenest, fig.cap = "Vegitation (NDVI) by Month", echo=FALSE}
+ndvi_month_avg <- full_long %>% 
+  filter(data == "ndvi") %>%
+  group_by(month) %>%
+  summarize(mean=mean(value), data="ndvi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+ndvi_month <- full_long %>% 
+  filter(data == "ndvi") %>%
+  group_by(site_type, month) %>%
+  summarize(mean=mean(value), data="ndvi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+
+ggplot() + 
+  geom_line(data = ndvi_month_avg, aes( x=month, y=ndvi)) +
+  geom_point(data = ndvi_month, aes(x=month, y=ndvi, color=site_type)) +
+  ggtitle('Vegitation (NDVI) by Month')+
+  labs(color="Site Type") +
+  scale_x_continuous(name="Month",   breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+  label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  scale_y_continuous(name="Average NDVI")
+```
+
+
+## Snowiest Month
+
+Snow cover was greatest in January & February. Site 1 had greater cover than site 2. This can be used as a proxy for snow fall, but is not a direct measurement as the freeze thaw cycle impacts the cover. Interestingly the snow cover post burn at site 2 was less than pre burn. This might be caused by a number of factors related or not related to the burn as theorized in \@ref(snow-and-vegitation).
+
+```{r HaymanSnowiest, fig.cap="Average NDSI (snow cover)", echo=FALSE}
+ndsi_month_avg <- full_long %>% 
+  filter(data == "ndsi") %>%
+  group_by(month) %>%
+  summarize(mean=mean(value), data="ndsi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+ndsi_month <- full_long %>% 
+  filter(data == "ndsi") %>%
+  group_by(site_type, month) %>%
+  summarize(mean=mean(value), data="ndsi")%>%
+  pivot_wider(names_from = data, values_from = mean)
+
+ggplot() + 
+  geom_line(data = ndsi_month_avg, aes( x=month, y=ndsi)) +
+  geom_point(data = ndsi_month, aes(x=month, y=ndsi, color=site_type)) +
+  ggtitle('Snow (NDSI) by Month')+
+  labs(color="Site Type") +
+  scale_x_continuous(
+    name="Month",
+    breaks = c(1,2,3,4,5,6,7,8,9,10,11,12),
+    label = c("Jan", "Feb", "Mar", "Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+  ) +
+  scale_y_continuous(name="Average NDSI (snow cover)")
+```
+
+
+

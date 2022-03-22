@@ -1,6 +1,6 @@
 # LAGOS Water Quality Analysis
 
-```{r setup, include=FALSE}
+```{r setup-water, include=FALSE}
 library(tidyverse) # Tidy packages
 library(sf) #Spatial package that can read and create shapefiles 
 library(mapview) #Interactive maps
@@ -17,7 +17,7 @@ library(lubridate) #For dealing with date and time
 
 
 ### First download and then specifically grab the locus (or site lat longs)
-```{r data-read}
+```{r data-read-water}
 #Lagos download script
 #lagosne_get(dest_folder = LAGOSNE:::lagos_path(),overwrite=T)
 

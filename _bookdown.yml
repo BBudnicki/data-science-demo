@@ -1,8 +1,19 @@
 book_filename: "_data-science-demo"
+output_dir: "docs"
 language:
   ui:
     chapter_name: "Chapter "
 delete_merged_file: true
-new_session: yes
+#new_session: yes
 always_allow_html: true
+
+
+rmd_files:
+  - "index.Rmd"
+  - "1-hw-poudre.Rmd"
+  - "2-hw-hayman.Rmd"
+#  - "3-hw-snow.Rmd"
+#  - "4-1-hw-spatial.Rmd"
+#  - "4-2-hw-WaterQuality.Rmd"
+#  - "5-corn.Rmd"
 

@@ -1,7 +1,6 @@
 # Weather and Corn Yield Regressions
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup-corn, include=FALSE}
 library(tidyverse)
 library(R.matlab)
 library(rnassqs)

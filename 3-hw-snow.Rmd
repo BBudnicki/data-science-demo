@@ -3,7 +3,7 @@
 R can read html using either rvest, xml, or xml2 packages. Here we are going to navigate to the Center for Snow and Avalanche Studies  [Website](https://snowstudies.org/archived-data/) and read a table in. This table contains links to data we want to programmatically download for three sites. We don't know much about these sites, but they contain incredibly rich snow, temperature, and precipitation data. 
 
 
-```{r setup, include=FALSE}
+```{r setup-snow, include=FALSE}
 library(rvest)
 library(tidyverse)
 library(lubridate)
@@ -135,9 +135,9 @@ ggplot(snow_yearly,aes(x=Year,y=mean_height,color=site)) +
 ```
 
 
-# Assignment:
+## Assignment:
 
-##  1. Extract the meteorological data URLs. 
+###  1. Extract the meteorological data URLs. 
 
 Here we want you to use the `rvest` package to get the URLs for the `SASP forcing` and `SBSP_forcing` meteorological data sets.
 
@@ -151,7 +151,7 @@ q1_links <- webpage %>%
 
 ```
 
-##  2. Download the meteorological data. 
+###  2. Download the meteorological data. 
 
 Use the `download_file` and `str_split_fixed` commands to download the data and save it in your data folder. You can use a for loop or a map function. 
 
@@ -176,7 +176,7 @@ evaluate <- !all(q2_downloaded)
 
 ```
 
-##  3. Read data
+###  3. Read data
 
 Write a custom function to read in the data and append a site column to the data. 
 
@@ -209,7 +209,7 @@ q3_reader <- function(file){
 ```
 
 
-##  4. Use the `map` function
+###  4. Use the `map` function
 
 Read in both meteorological files. Display a summary of your tibble.
 
@@ -221,7 +221,7 @@ summary(q4_full)
 
 ```
 
-##  5. Line Plot
+###  5. Line Plot
 
 
 Make a line plot of mean temp by year by site (using the `air temp [K]` variable). Is there anything suspicious in the plot? Adjust your filtering if needed.
@@ -285,7 +285,7 @@ ggplot(q5_yearly) +
 
 In figure 3 we see that it was unusually cold at both sites for the 2003 & 2004 data. Much more for the SBSP. Due to only collecting data for the end of the year, 2003 data has a lower mean temperature as it does not include the summer months. Looking at the header file [Serially-Complete-Metadata-text08.pdf](https://snowstudies.org/wp-content/uploads/2022/02/Serially-Complete-Metadata-text08.pdf) we can see that they do include QC Code columns, but those values do not appear in the data set itself. The table of code values indicate some of the data has the followings errors, but the dates are not specified.
 
-####  Air temp Error Codes
+#####  Air temp Error Codes
 - 5001: missing data: use data from upper measurement location at same site (regression fill)
 - 5003: missing data: use data from paired site (regression fill)
 - 6000: before desired time period
@@ -294,7 +294,7 @@ In figure 3 we see that it was unusually cold at both sites for the 2003 & 2004 
 - 6009: missing data: assume RH is 50%.
 
 
-## 6. Line plot 2
+### 6. Line plot 2
 
 Write a function that makes line plots of monthly average temperature at each site for a given year. Use a for loop to make these plots for 2005 to 2010. Are monthly average temperatures at the Senator Beck Study Plot ever warmer than the Snow Angel Study Plot?
 Hint: [https://ggplot2.tidyverse.org/reference/print.ggplot.html](https://ggplot2.tidyverse.org/reference/print.ggplot.html)
@@ -362,7 +362,7 @@ ggplot(q6_monthly) +
 ```
 
 
-## 7 Bonus #1 
+### 7 Bonus #1 
 
 Make a plot of average daily precipitation by day of year (averaged across all available years). Color each site. 
 
@@ -409,7 +409,7 @@ ggplot(q7_daily) +
 
 That was not helpful for finding a pattern. Also note: the daily precipitation is identical at both sites.
 
-## 8. Bonus #2
+### 8. Bonus #2
 
 Use a function and for loop to create yearly plots of precipitation by day of year. Color each site. 
 
@@ -431,7 +431,7 @@ ggplot(q8_yearly_monthly) +
 ```
 
 
-# To Git Hub
+## To Git Hub
 
 [https://github.com/BBudnicki/3_snow_functions_iteration](https://github.com/BBudnicki/3_snow_functions_iteration)
 

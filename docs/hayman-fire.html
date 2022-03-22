@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Hayman Fire | Hayman Fire</title>
+  <meta name="description" content="This is the final data science project for the Introduction to Data Science Course ESS 580A7." />
+  <meta name="generator" content="bookdown 0.25 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Hayman Fire | Hayman Fire" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="This is the final data science project for the Introduction to Data Science Course ESS 580A7." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Hayman Fire | Hayman Fire" />
+  
+  <meta name="twitter:description" content="This is the final data science project for the Introduction to Data Science Course ESS 580A7." />
+  
+
+<meta name="author" content="Brandon B" />
+
+
+<meta name="date" content="2022-03-21" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="poudre-river.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="libs/dygraphs-1.1.1/dygraph.css" rel="stylesheet" />
+<script src="libs/dygraphs-1.1.1/dygraph-combined.js"></script>
+<script src="libs/dygraphs-1.1.1/shapes.js"></script>
+<script src="libs/moment-2.8.4/moment.js"></script>
+<script src="libs/moment-timezone-0.2.5/moment-timezone-with-data.js"></script>
+<script src="libs/moment-fquarter-1.0.0/moment-fquarter.min.js"></script>
+<script src="libs/dygraphs-binding-1.1.1.6/dygraphs.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li><a href="index.html#introduction">Introduction<span></span></a></li>
+<li class="chapter" data-level="1" data-path="poudre-river.html"><a href="poudre-river.html"><i class="fa fa-check"></i><b>1</b> Poudre River<span></span></a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="poudre-river.html"><a href="poudre-river.html#methods"><i class="fa fa-check"></i><b>1.1</b> Methods<span></span></a></li>
+<li class="chapter" data-level="1.2" data-path="poudre-river.html"><a href="poudre-river.html#sitedescription"><i class="fa fa-check"></i><b>1.2</b> SiteDescription<span></span></a></li>
+<li class="chapter" data-level="1.3" data-path="poudre-river.html"><a href="poudre-river.html#data-acquisition"><i class="fa fa-check"></i><b>1.3</b> Data Acquisition<span></span></a></li>
+<li class="chapter" data-level="1.4" data-path="poudre-river.html"><a href="poudre-river.html#interactive-plot"><i class="fa fa-check"></i><b>1.4</b> Interactive Plot<span></span></a></li>
+<li class="chapter" data-level="1.5" data-path="poudre-river.html"><a href="poudre-river.html#cameron-peak-fire"><i class="fa fa-check"></i><b>1.5</b> Cameron Peak Fire<span></span></a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="hayman-fire.html"><a href="hayman-fire.html"><i class="fa fa-check"></i><b>2</b> Hayman Fire<span></span></a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="hayman-fire.html"><a href="hayman-fire.html#ndvi-over-time"><i class="fa fa-check"></i><b>2.1</b> NDVI over time<span></span></a></li>
+<li class="chapter" data-level="2.2" data-path="hayman-fire.html"><a href="hayman-fire.html#correlation-between-ndvi-ndmi"><i class="fa fa-check"></i><b>2.2</b> Correlation between NDVI &amp; NDMI<span></span></a></li>
+<li class="chapter" data-level="2.3" data-path="hayman-fire.html"><a href="hayman-fire.html#snow-and-vegitation"><i class="fa fa-check"></i><b>2.3</b> Snow and Vegitation<span></span></a></li>
+<li class="chapter" data-level="2.4" data-path="hayman-fire.html"><a href="hayman-fire.html#greenest-month"><i class="fa fa-check"></i><b>2.4</b> Greenest Month<span></span></a></li>
+<li class="chapter" data-level="2.5" data-path="hayman-fire.html"><a href="hayman-fire.html#snowiest-month"><i class="fa fa-check"></i><b>2.5</b> Snowiest Month<span></span></a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Hayman Fire</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="hayman-fire" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Hayman Fire<a href="hayman-fire.html#hayman-fire" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>The <a href="https://en.wikipedia.org/wiki/Hayman_Fire">Hayman Fire</a> occurred June 8,2002 and was at the time the largest recorded wildfire in Colorado. By using Google Earth Engine to download remote sensing data, we can look at the impact the wildfire had on vegetation.</p>
+<ul>
+<li>Normalized Difference Vegetation Index (<strong><a href="https://www.usgs.gov/landsat-missions/landsat-normalized-difference-vegetation-index">NDVI</a></strong>)</li>
+<li>Normalized Difference Snow Index (<strong><a href="https://www.usgs.gov/landsat-missions/normalized-difference-snow-index">NDSI</a></strong>)</li>
+<li>Normalized Difference Moisture Index (<strong><a href="https://www.usgs.gov/landsat-missions/normalized-difference-moisture-index">NDMI</a></strong>)</li>
+</ul>
+<div id="ndvi-over-time" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> NDVI over time<a href="hayman-fire.html#ndvi-over-time" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>There was a clear decrease in NDVI from pre to post burn at Site 2. Site 1 also saw a decrease, albeit quite a bit smaller.</p>
+<div class="figure"><span style="display:block;" id="fig:haymanNDVI"></span>
+<img src="_data-science-demo_files/figure-html/haymanNDVI-1.png" alt="NDVI over time" width="672" />
+<p class="caption">
+Figure 2.1: NDVI over time
+</p>
+</div>
+</div>
+<div id="correlation-between-ndvi-ndmi" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Correlation between NDVI &amp; NDMI<a href="hayman-fire.html#correlation-between-ndvi-ndmi" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Exploring the correlation between NDVI &amp; NDMI looking at the summer months we can see that as surface moisture increases, vegetation increases. Site 2 saw a decrease in surface moisture and vegetation following the same ratio between NDVI and NDMI.</p>
+<div class="figure"><span style="display:block;" id="fig:Hayman2"></span>
+<img src="_data-science-demo_files/figure-html/Hayman2-1.png" alt="Impact of surface moisture on vegatitation" width="672" />
+<p class="caption">
+Figure 2.2: Impact of surface moisture on vegatitation
+</p>
+</div>
+</div>
+<div id="snow-and-vegitation" class="section level2 hasAnchor" number="2.3">
+<h2><span class="header-section-number">2.3</span> Snow and Vegitation<a href="hayman-fire.html#snow-and-vegitation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Looking at the previous years snow cover, we show little if any influence on vegetation growth the following summer. Both for the Site 1 &amp; Site 2 pre burn. There is a clear shift in vegetation due to the impacts of burned areas <a href="hayman-fire.html#fig:HaymanSnowVeg">2.3</a> from site 2 pre burn to site 2 post burn. The snow cover had lower maximums during this time. This could be due to darker surfaces but also could be due to outside factors such as warmer winters. Based on the sample size it is difficult to tell from this data.</p>
+<div class="figure"><span style="display:block;" id="fig:HaymanSnowVeg"></span>
+<img src="_data-science-demo_files/figure-html/HaymanSnowVeg-1.png" alt="Impact of snow cover on vegatative growth" width="672" />
+<p class="caption">
+Figure 2.3: Impact of snow cover on vegatative growth
+</p>
+</div>
+</div>
+<div id="greenest-month" class="section level2 hasAnchor" number="2.4">
+<h2><span class="header-section-number">2.4</span> Greenest Month<a href="hayman-fire.html#greenest-month" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>August is the ‘greenest’ month based on the Normalized Difference Vegetation Index. This holds true for both unburned &amp; burned sites.</p>
+<div class="figure"><span style="display:block;" id="fig:haymanGreenest"></span>
+<img src="_data-science-demo_files/figure-html/haymanGreenest-1.png" alt="Vegitation (NDVI) by Month" width="672" />
+<p class="caption">
+Figure 2.4: Vegitation (NDVI) by Month
+</p>
+</div>
+</div>
+<div id="snowiest-month" class="section level2 hasAnchor" number="2.5">
+<h2><span class="header-section-number">2.5</span> Snowiest Month<a href="hayman-fire.html#snowiest-month" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Snow cover was greatest in January &amp; February. Site 1 had greater cover than site 2. This can be used as a proxy for snow fall, but is not a direct measurement as the freeze thaw cycle impacts the cover. Interestingly the snow cover post burn at site 2 was less than pre burn. This might be caused by a number of factors related or not related to the burn as theorized in <a href="hayman-fire.html#snow-and-vegitation">2.3</a>.</p>
+<div class="figure"><span style="display:block;" id="fig:HaymanSnowiest"></span>
+<img src="_data-science-demo_files/figure-html/HaymanSnowiest-1.png" alt="Average NDSI (snow cover)" width="672" />
+<p class="caption">
+Figure 2.5: Average NDSI (snow cover)
+</p>
+</div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="poudre-river.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/2-hw-hayman.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_data-science-demo.pdf", "_data-science-demo.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
