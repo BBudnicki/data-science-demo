@@ -1,6 +1,6 @@
 # Weather and Corn Yield Regressions
 
-
+By looking at weather patterns we can gleam new insight into corn yields. Here we use [PRISM temperture](https://prism.oregonstate.edu/) & precipitation data and [NASS](https://www.nass.usda.gov/Data_and_Statistics/) corn yields 
 
 ```{r CornSetup, include=FALSE}
 library(tidyverse)
