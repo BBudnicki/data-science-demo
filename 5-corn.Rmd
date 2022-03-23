@@ -499,8 +499,8 @@ plot_year = ggplot(soy) +
   labs(x = "Year", y = "Yield (bsh/ac)", title= "Yield over Year", color = "Year Model")
 
 plot_county = ggplot(soy) +
-  geom_point(mapping = aes(x = county_name, y = yield), alpha = 0.2, colour = "black") +
-  geom_line(mapping = aes(x = county_name, y = m_county, colour="Factor"), size=2) +
+  geom_point(mapping = aes(x = reorder(county_name, -yield), y = yield), alpha = 0.2, colour = "black") +
+  geom_line(mapping = aes(x = reorder(county_name, -m_county), y = m_county, colour="Factor"), size=2) +
   theme_bw() +
   labs(x = "County", y = "Yield (bsh/ac)", title= "Yield over County", color = "County Model")
 
@@ -521,7 +521,7 @@ plot_model_year = ggplot(soy) +
 
 plot_model_county = ggplot(soy) +
   geom_point(mapping = aes(x = yield, y = m_county), alpha = 0.2) + 
-  geom_line(mapping = aes(x = yield, y = yield), linetype = "dashed", size=1) +
+  geom_line(mapping = aes(x = yield, y = yield), linetype = "dashed", size=2) +
   theme_bw() +
   labs(x = "Actual Yield", y = "Fitted Yield", title= "County Model", subtitle="Iowa All Years")
 
@@ -549,6 +549,9 @@ plot_model_combined
 )
 
 ```
+
+
+
 
 
 ## Corn VS Soy
