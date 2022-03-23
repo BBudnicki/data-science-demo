@@ -16,7 +16,7 @@ description: "This is the final data science project for the Introduction to Dat
 
 This R Bookdown website is my final project for the Introduction to Data Science Course ESS 580A7. I took this class in the Spring semester of 2022 as part of my candidacy in the Ecosystem Science & Sustainability (**ESS**) PHD program at Colorado State University.
 
-### View GitHub
+## View GitHub Code {-}
 
 The code used to build this R Bookdown is hosted on GitHub.
 

@@ -1,23 +1,27 @@
-# LAGOS Water Quality Analysis
+# LAGOSNE Water Quality Analysis
 
-```{r setup-water, include=FALSE}
+[lagoslakes.org](https://lagoslakes.org/) archives observations of lakes over time. Here we visualize lakes in Minnesota, Iowa, & Illinois geospatially using [Leaflet](https://leafletjs.com/). In this analysis we will look at [Chlorophyll A](https://en.wikipedia.org/wiki/Chlorophyll_a) & Secchi depth (meters). Chlorophyll A is a proxy measure for the amount of algea in a water body. [Secchi depth](https://en.wikipedia.org/wiki/Secchi_disk) is a measure of water clarity.
+
+
+```{r WaterSetup, include=FALSE}
 library(tidyverse) # Tidy packages
 library(sf) #Spatial package that can read and create shapefiles 
 library(mapview) #Interactive maps
 library(LAGOSNE) #Lots and lots of clean lake data
 library(USAboundaries) #USA states and counties
 library(lubridate) #For dealing with date and time
+library("gridExtra")
+library(leaflet.extras2)
+library(raster)
+
 ```
-
-
-
 
 
 ## Loading in data
 
 
-### First download and then specifically grab the locus (or site lat longs)
-```{r data-read-water}
+### Download and identify the site locus(latiutde longitude)
+```{r WaterRead}
 #Lagos download script
 #lagosne_get(dest_folder = LAGOSNE:::lagos_path(),overwrite=T)
 
@@ -37,24 +41,21 @@ nutr <- lagos$epi_nutr
 
 #Look at column names
 #names(nutr)
-```
-
-### Subset columns nutr to only keep key info that we want
-
-
-```{r}
+# subset columns nutr to only keep key info that we want
 clarity_only <- nutr %>%
-  select(lagoslakeid,sampledate,chla,doc,secchi) %>%
+  dplyr::select(lagoslakeid,sampledate,chla,doc,secchi) %>%
   mutate(sampledate = as.character(sampledate) %>% ymd(.))
 
 ```
 
 
-### Keep sites with at least 200 observations 
+### Filter sites with at least 200 observations 
 
-```{r}
+This is done to ensure we have enough data for a given lake to conduct analysis. This was arbitrarily chosen. See [Why 200 observations] for an analysis of the distribution of observations per lake.
 
-#Look at the number of rows of dataset
+```{r WaterFilter}
+
+#Look at the number of rows of data
 #nrow(clarity_only)
 
 chla_secchi <- clarity_only %>%
@@ -64,83 +65,87 @@ chla_secchi <- clarity_only %>%
 # How many observatiosn did we lose?
 filteredObservations = nrow(clarity_only) - nrow(chla_secchi)
 
-
 # Keep only the lakes with at least 200 observations of secchi and chla
 chla_secchi_200 <- chla_secchi %>%
   group_by(lagoslakeid) %>%
   mutate(count = n()) %>%
   filter(count > 200)
 
-
+# Join water quality data to spatial data
+spatial_200 <- inner_join(
+  spatial_lakes,chla_secchi_200 %>% distinct(lagoslakeid,.keep_all=T),
+  by='lagoslakeid'
+)
 ```
 
 We lost `r filteredObservations` observations because they were missing Secchi or Chlorophyll data.
 
-### Join water quality data to spatial data
+## Mean Chlorophyll A map
 
-```{r}
-spatial_200 <- inner_join(spatial_lakes,chla_secchi_200 %>%
-                            distinct(lagoslakeid,.keep_all=T),
-                          by='lagoslakeid')
-
-
-```
-
-### Mean Chl_a map
-
-```{r}
-### Take the mean chl_a and secchi by lake
-
+```{r WaterChloMap}
+### Take the mean Chlorophyll A and Secchi by lake
 mean_values_200 <- chla_secchi_200 %>%
   # Take summary by lake id
   group_by(lagoslakeid) %>%
   # take mean chl_a per lake id
-  summarize(mean_chla = mean(chla,na.rm=T),
-            mean_secchi=mean(secchi,na.rm=T)) %>%
+  summarize(
+    mean_chla = mean(chla,na.rm=T),
+    mean_secchi=mean(secchi,na.rm=T)
+  ) %>%
   #Get rid of NAs
-  filter(!is.na(mean_chla),
-         !is.na(mean_secchi)) %>%
+  filter(
+    !is.na(mean_chla),
+    !is.na(mean_secchi)
+  ) %>%
   # Take the log base 10 of the mean_chl
   mutate(log10_mean_chla = log10(mean_chla))
 
 #Join datasets
-mean_spatial <- inner_join(spatial_lakes,mean_values_200,
-                          by='lagoslakeid') 
+mean_spatial <- inner_join(
+    spatial_lakes,
+    mean_values_200,
+    by='lagoslakeid'
+  ) 
 
 #Make a map
-mapview(mean_spatial,zcol='log10_mean_chla')
+mapview(mean_spatial,zcol='log10_mean_chla', layer.name = 'Mean Chlorophyll A Log 10')
 ```
 
 
-## Class work
-
-### 1) What is the correlation between Secchi Disk Depth and Chlorophyll a for sites with at least 200 observations?
-
-Here, I just want a plot of chla vs secchi for **all sites**
-
-```{r}
-#Your code here
-ggplot(mean_values_200) +
-  geom_point(aes( mean_secchi, mean_chla))
-
-ggplot(chla_secchi) +
-  geom_point(aes( secchi, chla))
-
-
-```
-
-
-#### Why might this be the case? 
+## Correlation between Secchi Disk Depth and Chlorophyll A
 
 Chlorophyll blocks light and obscures the secchi disk. As chlorophyll increases, Secchi depth decreases. Additionally algae are the primary producers of chlorophyll along with weeds. Lakes that have a higher nutrient load leads to more chlorophyll, these dissolved nutrients also tend to cloud waters and obscure secchi disks. Finally, deeper lakes tend to produce less photosynthetic algae due to increased mechanical mixing of different water layers.
 
+```{r, echo=FALSE, fig.cap="Secchi depth vs Chlorophyll"}
+grid.arrange(
+ggplot(mean_values_200) +
+  geom_point(aes( mean_secchi, mean_chla)) +
+  labs(title="Lakes with more than 200 observations") +
+  xlab("Secchi Depth (Meters)") +
+  ylab("Chlorophyll A")
+,
+ggplot(chla_secchi) +
+  geom_point(aes( secchi, chla))+ 
+  labs(title="All lakes") +
+  xlab("Secchi Depth (Meters)") +
+  ylab("Chlorophyll A")
+)
 
-### 2 What states have the most data? 
 
-#### 2**a** First you will need to make a lagos spatial dataset that has the total number of counts per site.
+
+```
+
+
+
+
+
+## Which states have the most data? 
+
 
 ```{r}
-## Get count for each lake
+# Make a lagos spatial dataset that has the total number of counts per site.
+
+# Get count for each lake
 lago_summary = chla_secchi %>%
   #slice(1:10000) %>%
   group_by(lagoslakeid) %>%
@@ -149,9 +154,6 @@ lago_summary = chla_secchi %>%
     mean_secchi=mean(secchi,na.rm=T),
     count=n()
   )
-
-```
-```{r}
 ## Join to lake location
 lago_location_summary = 
   merge(
@@ -162,21 +164,12 @@ lago_location_summary =
   ) %>%
   st_as_sf(coords=c('nhd_long','nhd_lat'),crs=4326)
 
+# Show all points on the map
+#mapview(lago_location_summary)
 
-```
-
-```{r}
-mapview(lago_location_summary)
-```
-
-
-
-
-#### 2**b** Second, you will need to join this point dataset to the us_boundaries data. 
-
-```{r}
+#  join this point dataset to the us_boundaries data.
 state_bounds = us_states() %>%
-    select(state_name,state_abbr)
+    dplyr::select(state_name,state_abbr)
 
 lago_location_summary_join_state = 
   st_join(
@@ -188,15 +181,7 @@ lago_location_summary_join_state =
 lago_location_summary_join_state_200 = lago_location_summary_join_state %>%
     filter(count > 200)
 
-
-
-```
-
-
-#### 2**c** Then you will want to group by state and sum all the observations in that state and arrange that data from most to least total observations per state. 
-
-```{r}
-## Your code here. 
+# Group by state and sum all the observations in that state and arrange that data from most to least total observations per state. 
 state_data = lago_location_summary_join_state %>%
   group_by(state_name) %>%
   summarize(
@@ -206,12 +191,9 @@ state_data = lago_location_summary_join_state %>%
   ) %>%
   arrange(desc(count))
 
-## verify all observations totaled correctly **success**
-sum(state_data$count)
+# verify all observations totaled correctly **success**
+#sum(state_data$count)
 
-```
-
-```{r}
 state_data_200 = lago_location_summary_join_state_200 %>%
   group_by(state_name) %>%
   summarize(
@@ -224,72 +206,71 @@ state_data_200 = lago_location_summary_join_state_200 %>%
 
 
 ```{r}
-### map of where state with most values are
+# map of where state with most values are
 state_obs_count =  st_join(
     x = state_bounds, 
     y = state_data, 
     left = TRUE
   )
-
-mapview(state_obs_count, zcol = 'count')
-
-```
-
-```{r}
-### map of where state with most values are
+# map of where state with most values are
 state_obs_count_200 =  st_join(
     x = state_bounds, 
     y = state_data_200, 
     left = TRUE
   )
+```
 
-mapview(state_obs_count_200, zcol = 'count')
+### Number of observations for all lakes
+
+```{r, echo=FALSE}
+mapview(state_obs_count, zcol = 'count', layer.name = 'Observations' )
+```
+
+### Number of observations for lakes with more than 200 observations
+
+```{r, echo=FALSE}
+mapview(state_obs_count_200, zcol = 'count', layer.name="Observations")
 
 ```
 
-### 3 Is there a **spatial pattern** in Secchi disk depth for lakes with at least 200 observations?
+### Spatial pattern in Secchi disk depth for lakes with at least 200 observations
 
-```{r}
-## Your code here
+The lakes with more than 200 observations are all centered on urban areas. This show more of a bias towards the accessibility rather than a spatial connection with secchi disk depths.
 
-mapview(lago_location_summary_join_state_200, zcol = 'mean_secchi')
+```{r, echo=FALSE}
+mapview(lago_location_summary_join_state_200, zcol = 'mean_secchi', layer.name="Secchi Depth (Meters)")
 
 ```
 
 
-The lakes with more than 200 observations are all centered on urban areas. This show more of a bias towards the accesibility rather than a spatial connection with Secchi disk depths.
 
-#### Why 200 observations
-```{r}
+
+## Why 200 observations
+Histogram \@ref(fig:WaterWhy200) shows the distribution of observations / lake. The 200 observations per lake is somewhat arbitrary. Looking at 10 to 50 observations per lake would capture more than the outlier lakes with an extreme amount of observation activity.
+
+```{r WaterWhy200, fig.cap="Distribution of observations / lake",echo=FALSE}
 ggplot(lago_location_summary_join_state, aes(x=count)) + 
   geom_histogram() + 
-  scale_x_log10()
+  scale_x_log10() +
+  xlab("Number of observations") +
+  ylab("Number of lakes")
 
 ```
 
-This histogram shows the distribution of observations / lake. The 200 observations per lake is somewhat arbitrary. Looking at 10 to 50 observations per lake would capture more than the outlier lakes with an extreme amount of observation activity.
+## 25 observations per lake
 
-#### 25 observations per lake
-
-```{r}
-lago_location_summary_join_state_25 = lago_location_summary_join_state %>%
-    filter(count > 25)
-mapview(lago_location_summary_join_state_25, zcol = 'mean_secchi')
-
-```
 At 25 observations per lake this demonstrates 2 clear spatial relations for Secchi depth:
 
 1. Increasing latitude is positively correlated with Secchi depth. This could be to decreased agricultural activity in the north.
 
 2. Increased distance from population centers is positively correclated with Secchi depth. This could be to less human made pollution adding nutrient to the water.
 
+```{r ,echo=FALSE}
+lago_location_summary_join_state_25 = lago_location_summary_join_state %>%
+    filter(count > 25)
+mapview(lago_location_summary_join_state_25, zcol = 'mean_secchi', layer.name="Secchi Depth (Meters)")
 
-## Links
+```
 
-[GitHub](https://github.com/BBudnicki/LAGOS_Spatial_Analyses)
-
-[Assignment 1](https://bbudnicki.github.io/LAGOS_Spatial_Analyses/1_beginning_spatial_analysis.html)
-
-[Assignment 2](https://bbudnicki.github.io/LAGOS_Spatial_Analyses/2_lake_wq_analysis.html)
 
 

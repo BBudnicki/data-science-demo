@@ -691,8 +691,3 @@ mapview(mapCornLate, alpha.regions = 0.5, aplha = 1, zcol="yield",
 
 There have been significant increases in corn yeild between 1985 & 2018. This increase is observed for all counties with the biggest yields occurring in the east central are of Iowa.
 
-## Links
-
-[Git Hub Repo](https://github.com/BBudnicki/weather_corn_regressions)
-
-[Git Hub Pages](https://bbudnicki.github.io/weather_corn_regressions/)

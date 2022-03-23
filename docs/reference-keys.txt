@@ -19,7 +19,8 @@ fig:PercipitationDay
 fig:PercipitationMonth
 fig:PercipitationYearly
 fig:LagoHist
-view-github
+fig:unnamed-chunk-9
+fig:WaterWhy200
 poudre-river-interactive-graph
 methods
 sitedescription
@@ -57,3 +58,15 @@ subset-lagos-data
 distribution-of-lake-size-in-iowa-vs.-minnesota
 lakes-in-iowa-illinois-by-lake-area
 future-investigation
+lagosne-water-quality-analysis
+loading-in-data-1
+download-and-identify-the-site-locuslatiutde-longitude
+filter-sites-with-at-least-200-observations
+mean-chlorophyll-a-map
+correlation-between-secchi-disk-depth-and-chlorophyll-a
+which-states-have-the-most-data
+number-of-observations-for-all-lakes
+number-of-observations-for-lakes-with-more-than-200-observations
+spatial-pattern-in-secchi-disk-depth-for-lakes-with-at-least-200-observations
+why-200-observations
+observations-per-lake

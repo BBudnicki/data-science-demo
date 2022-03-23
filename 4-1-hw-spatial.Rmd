@@ -1,6 +1,7 @@
 
 # LAGOS Spatial Analysis
 
+[lagoslakes.org](https://lagoslakes.org/) collects data for studying lakes through time. Here we visualize lakes in Minnesota, Iowa, & Illinois geospatially using [Leaflet](https://leafletjs.com/).
 
 ```{r setup-spatial, include=FALSE}
 library(tidyverse) # Tidy packages
@@ -54,7 +55,7 @@ subset_spatial <- spatial_lakes %>%
 subset_baser <- spatial_lakes[1:100,]
 
 #Dynamic mapviewer
-mapview(subset_spatial)
+#mapview(subset_spatial, layer.name="Lakes")
 
 ```
 
@@ -78,7 +79,7 @@ minnesota_lakes <- spatial_lakes[minnesota,]
 minnesota_lakes %>%
   arrange(-lake_area_ha) %>%
     slice(1:1000) %>%
-  mapview(.,zcol = 'lake_area_ha') + mapview(minnesota)
+  mapview(.,zcol = 'lake_area_ha', layer.name="Lake Area (HA)") + mapview(minnesota)
 ```
 
 
@@ -88,17 +89,22 @@ minnesota_lakes %>%
 ```{r LagoIAIL, fig.cap="Outline of Iowa & Illinois"}
 #Plot all the states to check if they loaded
 #mapview(states)
+
+#polygon for Iowa
 iowa <- states %>%
   filter(name == 'Iowa') %>%
   st_transform(2163)
 
+#Ploygon for Illionois
 illinois <- states %>%
   filter(name == 'Illinois') %>%
   st_transform(2163)
 
+#Digplay combined map 
 mapview(illinois, alpha.regions = 0.4, aplha = 1, col.regions = "yellow") + 
 mapview(iowa, alpha.regions = 0.4, aplha = 1, col.regions = "red")
 
+#Filter lakes based on state
 iowa_lakes <- spatial_lakes[iowa,]
 illinois_lakes <- spatial_lakes[illinois,]
 
@@ -109,16 +115,17 @@ illinois_lakes <- spatial_lakes[illinois,]
 ```{r LagoIAILLakes, eval= FALSE, echo= FALSE}
 
 #Plotting the first 1000 lakes
-mapview(iowa, alpha.regions = 0.4, aplha = 1, col.regions = "red") +
+
+mapview(iowa, alpha.regions = 0.4, aplha = 1, col.regions = "red") + #Iowa
   iowa_lakes %>%
   arrange(-lake_area_ha) %>%
   slice(1:1000) %>%
-  mapview(.,zcol = 'lake_area_ha') +
-mapview(illinois, alpha.regions = 0.4, aplha = 1, col.regions = "yellow") +
+  mapview(.,zcol = 'lake_area_ha', layer.name="Lake Area (HA)") +
+mapview(illinois, alpha.regions = 0.4, aplha = 1, col.regions = "yellow") + # Illinois
   illinois_lakes %>%
   arrange(-lake_area_ha) %>%
   slice(1:1000) %>%
-  mapview(.,zcol = 'lake_area_ha')
+  mapview(.,zcol = 'lake_area_ha', layer.name="Lake Area (HA)")
 ```
 
 
@@ -128,6 +135,7 @@ mapview(illinois, alpha.regions = 0.4, aplha = 1, col.regions = "yellow") +
 Subset LAGOS data to these sites, how many sites are in Illinois and Iowa combined? How does this compare to Minnesota?
 
 ```{r LagoSubset}
+# Create bar chart of lakes size distribution
 minnesota_length = length(minnesota_lakes$lagoslakeid)
 iowa_illinois_lakes = rbind(illinois_lakes, iowa_lakes)
 iowa_illinois_length = length(iowa_illinois_lakes$lagoslakeid)
@@ -143,6 +151,7 @@ Minnesota has `r minnesota_length` lakes while Iowa & Illinois combined have `r 
 Minnesota has bigger lakes than Iowa. Both are skewed to the right.
 
 ```{r LagoHist, echo= FALSE, fig.cap="Distribution of lake size in Iowa vs. Minnesota"}
+# Display distributions of lake size 
 grid.arrange(
 ggplot(minnesota_lakes, aes(x= lake_area_ha)) + 
   geom_histogram(bins=10) + 
@@ -168,11 +177,13 @@ ggplot(iowa_lakes, aes(x= lake_area_ha)) +
 
 ```{r LagoIAILArea, fig.cap='Lakes in Iowa & Illinois by lake area'}
 
+# Arrange lakes so larger ones are on top
 iowa_illinois_map = iowa_illinois_lakes %>%
   arrange(-lake_area_ha) %>%
     slice(1:1000) %>%
-  mapview(.,zcol = 'lake_area_ha',  canvas = TRUE, at=c(0,10,100,1000,10000)) 
+  mapview(.,zcol = 'lake_area_ha', layer.name="Lake Area (HA)",  canvas = TRUE, at=c(0,10,100,1000,10000)) 
 
+# Combine map layersfor display
 mapview(illinois,  canvas = TRUE , alpha.regions = 0.4, aplha = 1, col.regions = "yellow") + 
 mapview(iowa,  canvas = TRUE , alpha.regions = 0.4, aplha = 1, col.regions = "red") +
 iowa_illinois_map 
