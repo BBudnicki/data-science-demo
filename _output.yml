@@ -3,12 +3,14 @@ bookdown::gitbook:
   config:
     fontsettings:
       theme: 'night'
+      size: 2.5
     toc:
       before: |
         <li><a href="./">Data Science Demo</a></li>
       after: |
         <li><a href="https://github.com/BBudnicki/data-science-demo">View GitHub</a></li>
     edit: https://github.com/BBudnicki/data-science-demo/edit/main/%s
+    view: https://github.com/BBudnicki/data-science-demo/main/%s
 #bookdown::pdf_book:
 #  includes:
 #    in_header: preamble.tex

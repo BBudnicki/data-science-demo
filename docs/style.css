@@ -1,5 +1,5 @@
 p.caption {
-  color: #777;
+  color: #CCC;
   margin-top: 10px;
 }
 p code {
@@ -11,4 +11,7 @@ pre {
 }
 pre code {
   white-space: inherit;
+}
+.sourceCode {
+  background-color: #EEEEEE !important;
 }

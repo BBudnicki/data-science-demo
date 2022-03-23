@@ -263,7 +263,7 @@ At 25 observations per lake this demonstrates 2 clear spatial relations for Secc
 
 1. Increasing latitude is positively correlated with Secchi depth. This could be to decreased agricultural activity in the north.
 
-2. Increased distance from population centers is positively correclated with Secchi depth. This could be to less human made pollution adding nutrient to the water.
+2. Increased distance from population centers is positively correlated with Secchi depth. This could be to less human made pollution adding nutrient to the water.
 
 ```{r ,echo=FALSE}
 lago_location_summary_join_state_25 = lago_location_summary_join_state %>%
