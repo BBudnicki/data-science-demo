@@ -1,6 +1,8 @@
 # Weather and Corn Yield Regressions
 
-```{r setup-corn, include=FALSE}
+
+
+```{r CornSetup, include=FALSE}
 library(tidyverse)
 library(R.matlab)
 library(rnassqs)
@@ -15,7 +17,7 @@ library(raster)
 ## Setup
 ### Load the PRISM daily maximum temperatures
 
-```{r tmax data}
+```{r CornTmax}
 
 # daily max temperature
 # dimensions: counties x days x years
@@ -53,7 +55,7 @@ tmaxdf <- tibble(tmaxdf)
 
 #### Summer temperature trends: Winneshiek County
 
-```{r temp trends}
+```{r CornTempTrends}
 
 tmaxdf$doy <- as.numeric(tmaxdf$doy)
 tmaxdf$year <- as.numeric(as.character(tmaxdf$year))

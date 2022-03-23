@@ -1,6 +1,6 @@
 # LAGOSNE Water Quality Analysis
 
-[lagoslakes.org](https://lagoslakes.org/) archives observations of lakes over time. Here we visualize lakes in Minnesota, Iowa, & Illinois geospatially using [Leaflet](https://leafletjs.com/). In this analysis we will look at [Chlorophyll A](https://en.wikipedia.org/wiki/Chlorophyll_a) & Secchi depth (meters). Chlorophyll A is a proxy measure for the amount of algea in a water body. [Secchi depth](https://en.wikipedia.org/wiki/Secchi_disk) is a measure of water clarity.
+[lagoslakes.org](https://lagoslakes.org/) archives observations of lakes over time. Here we visualize lakes in Minnesota, Iowa, & Illinois geospatially using [Leaflet](https://leafletjs.com/). In this analysis we will look at [Chlorophyll A](https://en.wikipedia.org/wiki/Chlorophyll_a) & Secchi depth (meters). Chlorophyll A (micro grams / liter) is a proxy measure for the amount of algae in a water body. [Secchi depth](https://en.wikipedia.org/wiki/Secchi_disk) is a measure of water clarity.
 
 
 ```{r WaterSetup, include=FALSE}
@@ -121,13 +121,13 @@ grid.arrange(
 ggplot(mean_values_200) +
   geom_point(aes( mean_secchi, mean_chla)) +
   labs(title="Lakes with more than 200 observations") +
-  xlab("Secchi Depth (Meters)") +
+  xlab("Secchi Depth (m)") +
   ylab("Chlorophyll A")
 ,
 ggplot(chla_secchi) +
   geom_point(aes( secchi, chla))+ 
   labs(title="All lakes") +
-  xlab("Secchi Depth (Meters)") +
+  xlab("Secchi Depth (m)") +
   ylab("Chlorophyll A")
 )
 
@@ -238,7 +238,7 @@ mapview(state_obs_count_200, zcol = 'count', layer.name="Observations")
 The lakes with more than 200 observations are all centered on urban areas. This show more of a bias towards the accessibility rather than a spatial connection with secchi disk depths.
 
 ```{r, echo=FALSE}
-mapview(lago_location_summary_join_state_200, zcol = 'mean_secchi', layer.name="Secchi Depth (Meters)")
+mapview(lago_location_summary_join_state_200, zcol = 'mean_secchi', layer.name="Secchi Depth (m)")
 
 ```
 
@@ -268,7 +268,7 @@ At 25 observations per lake this demonstrates 2 clear spatial relations for Secc
 ```{r ,echo=FALSE}
 lago_location_summary_join_state_25 = lago_location_summary_join_state %>%
     filter(count > 25)
-mapview(lago_location_summary_join_state_25, zcol = 'mean_secchi', layer.name="Secchi Depth (Meters)")
+mapview(lago_location_summary_join_state_25, zcol = 'mean_secchi', layer.name="Secchi Depth (m)")
 
 ```
 

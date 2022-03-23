@@ -36,7 +36,7 @@ links <- webpage %>%
 
 ### Download the data.
 
-```{r SnowDonload}
+```{r SnowDonload, warning=FALSE}
 
 #Grab only the name of the file by splitting out on forward slashes
 splits <- str_split_fixed(links,'/',8)
